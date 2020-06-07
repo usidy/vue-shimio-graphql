@@ -1,10 +1,10 @@
 <h1 align=center>@usidy/vue-shimio-graphql</h1>
 <p align=center>
   <img src="https://img.shields.io/github/license/usidy/vue-shimio-graphql.svg?style=for-the-badge" />
-  <a href="https://www.npmjs.com/package/@usidy/vue-shimio-graphql">
-    <img src="https://img.shields.io/npm/v/@usidy/vue-shimio-graphql.svg?logo=npm&style=for-the-badge" />
+  <a href="https://www.npmjs.com/package/@sidy/vue-shimio-graphql">
+    <img src="https://img.shields.io/npm/v/@sidy/vue-shimio-graphql.svg?logo=npm&style=for-the-badge" />
   </a>
-  <img src="https://img.shields.io/npm/dw/@usidy/vue-shimio-graphql?logo=npm&style=for-the-badge" />
+  <img src="https://img.shields.io/npm/dw/@sidy/vue-shimio-graphql?logo=npm&style=for-the-badge" />
 </p>
 
 <h3 align=center>A VueJS plugin to make graphql websocket queries</h3>
