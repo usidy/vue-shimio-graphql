@@ -1,10 +1,30 @@
 {
-  "name": "@usidy/vue-shimio-graphql",
+  "name": "@sidy/vue-shimio-graphql",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
     "postversion": "git push && git push --tags"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/usidy/vue-shimio-graphql.git"
+  },
+  "keywords": [
+    "shimio",
+    "graphql",
+    "vuejs",
+    "plugin",
+    "sidy"
+  ],
+  "license": "UNLICENSE",
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "sidy",
+  "bugs": {
+    "url": "https://github.com/usidy/eslint-config-sidy/issues"
+  },
+  "homepage": "https://github.com/usidy/eslint-config-sidy#readme",
   "dependencies": {
     "vue": "^2.6.11",
     "@hydre/shimio": "^2.2.5",
