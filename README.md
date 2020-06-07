@@ -1,4 +1,4 @@
-<h1 align=center>@usidy/vue-shimio-graphql</h1>
+<h1 align=center>@sidy/vue-shimio-graphql</h1>
 <p align=center>
   <img src="https://img.shields.io/github/license/usidy/vue-shimio-graphql.svg?style=for-the-badge" />
   <a href="https://www.npmjs.com/package/@sidy/vue-shimio-graphql">
@@ -12,7 +12,7 @@
 ## Install
 
 ```js
-import graphql from '@usidy/vue-shimio-graphql'
+import graphql from '@sidy/vue-shimio-graphql'
 
 Vue.use(graphql, {
   name: 'graphql', // vue prototype namespace
