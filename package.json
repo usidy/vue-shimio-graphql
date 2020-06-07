@@ -2,6 +2,9 @@
   "name": "@usidy/vue-shimio-graphql",
   "version": "0.1.1",
   "main": "index.js",
+  "scripts": {
+    "postversion": "git push && git push --tags"
+  },
   "dependencies": {
     "vue": "^2.6.11",
     "@hydre/shimio": "^2.2.5",
