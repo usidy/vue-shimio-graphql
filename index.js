@@ -1,5 +1,5 @@
-import Client from '@hydre/shimio/client'
-import Query from '@hydre/shimio-graphql/query'
+import Client from '@hydre/shimio/src/Client.js'
+import Query from '@hydre/shimio-graphql/src/query.js'
 
 const default_options = {
   name: 'graphql',
