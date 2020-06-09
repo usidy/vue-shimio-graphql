@@ -59,10 +59,8 @@ export default {
                 return
               }
               this.result = await query(this.query, this.variables || {})
-              for await (const { operation_name, ...rest } of this.result.listen()) {
-                console.log('incomming', rest)
+              for await (const { operation_name, ...rest } of this.result.listen())
                 this.set_operation(operation_name, rest)
-              }
             },
             stop_query() {
               if (this.result) this.result.stop()
@@ -76,12 +74,14 @@ export default {
             }
           },
           async mounted() {
+            window.addEventListener('unload', this.stop_query)
             if (!ready) ready = client.connect()
             try { await ready } catch (error) {
               console.error('[vue-shimio-graphl] > The client is unable to connect')
             }
           },
           beforeDestroy() {
+            window.removeEventListener('unload', this.stop_query)
             this.stop_query()
           }
         })
