@@ -77,7 +77,7 @@ export default {
             window.addEventListener('unload', this.stop_query)
             if (!ready) ready = client.connect()
             try { await ready } catch (error) {
-              console.error('[vue-shimio-graphl] > The client is unable to connect')
+              console.error('[vue-shimio-graphl] > The client is unable to connect\n', error)
             }
           },
           beforeDestroy() {
