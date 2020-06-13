@@ -71,7 +71,7 @@ export default {
                 return
               }
               log_send('%O', this.query)
-              this.result = await query(this.query, this.variables || {})
+              this.result = query(this.query, this.variables || {})
               for await (const { operation_name, ...rest } of this.result.listen())
                 this.set_operation(operation_name, rest)
             },

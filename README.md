@@ -66,7 +66,7 @@ Vue.use(graphql, {
 ```js
 const { query, disconnect, ready } = Vue.prototype.$graphql.Auth
 await ready() // make sure the client is connected
-const result = await query('{ ping }') // run some queries
+const result = query('{ ping }') // run some queries
 for await (const operation of result.listen()) { // iterate listen
   result.stop() // unsubscribe from the operation
 }
