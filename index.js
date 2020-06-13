@@ -53,7 +53,7 @@ export default {
             set_operation(operation_name, rest) {
               this.raw_operations.set(operation_name, rest)
               this.tracker++
-              this.$emit('live', { operation_name, ...rest })
+              this.$emit(operation_name, rest)
             },
             is_loading(operation) {
               return !operation.data && !operation.errors.length

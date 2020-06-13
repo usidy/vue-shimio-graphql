@@ -37,11 +37,11 @@ Vue.use(graphql, {
       </template>
 
       <template #none="{ operation }"> <!-- in case of early error -->
-        The `foo` operation
+        a `none` operation
       </template>
 
       <template #anon="{ operation }"> <!-- in case of unnamed query -->
-        The `foo` operation
+        an `anon` operation
       </template>
 
       <template #all="{ operations }"> <!-- [name, operation] = operations -->
@@ -52,15 +52,12 @@ Vue.use(graphql, {
 
 ## Hybrid usage (recommended over raw js)
 
-> `@live` is triggered on every server update
-
 ```html
 <template lang="pug">
-    <Api query="query foo { }" ref="api">
-      <template
-        #foo="{ operation }"
-        @live="operation => { this.foo = operation.data.foo }"
-      />
+    <Api
+      query="query foo { }" ref="api"
+      @foo="operation => { }"
+    />
 </template>
 ```
 
