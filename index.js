@@ -20,7 +20,12 @@ export default {
         const query = Query(client)
         const disconnect = client.disconnect.bind(client)
         let ready
-        Vue.prototype[key][name] = { query, disconnect }
+        Vue.prototype[ key ][ name ] = {
+          query, disconnect, async ready() {
+            if (!ready) ready = client.connect()
+            return ready
+          }
+        }
         Vue.component(name, {
           template: `<div>
                         <slot v-if="!operations.length" name="loading"/>
@@ -45,9 +50,10 @@ export default {
           },
           props: ['query', 'variables'],
           methods: {
-            set_operation(key, value) {
-              this.raw_operations.set(key, value)
+            set_operation(operation_name, rest) {
+              this.raw_operations.set(operation_name, rest)
               this.tracker++
+              this.$emit('live', { operation_name, ...rest })
             },
             is_loading(operation) {
               return !operation.data && !operation.errors.length
@@ -79,6 +85,7 @@ export default {
             try { await ready } catch (error) {
               console.error('[vue-shimio-graphl] > The client is unable to connect\n', error)
             }
+            await this.execute_query()
           },
           beforeDestroy() {
             window.removeEventListener('unload', this.stop_query)

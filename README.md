@@ -27,12 +27,20 @@ Vue.use(graphql, {
 
 ```html
 <template lang="pug">
-    <Api query="query foo { }" ref="api">
+    <Api query="query BLABLABLA { }" ref="api">
       <template #loading>
         Loading.. (v-if loading)
       </template>
 
-      <template #foo="{ operation }"> <!-- see @hydre/shimio-graphql -->
+      <template #BLABLABLA="{ operation }"> <!-- see @hydre/shimio-graphql -->
+        The `foo` operation
+      </template>
+
+      <template #none="{ operation }"> <!-- in case of early error -->
+        The `foo` operation
+      </template>
+
+      <template #anon="{ operation }"> <!-- in case of unnamed query -->
         The `foo` operation
       </template>
 
@@ -42,12 +50,27 @@ Vue.use(graphql, {
 </template>
 ```
 
-## Usage in js
+## Hybrid usage (recommended over raw js)
+
+> `@live` is triggered on every server update
+
+```html
+<template lang="pug">
+    <Api query="query foo { }" ref="api">
+      <template
+        #foo="{ operation }"
+        @live="operation => { this.foo = operation.data.foo }"
+      />
+</template>
+```
+
+## Usage in raw js
 
 ```js
-const { query, disconnect } = Vue.prototype.$graphql.Auth
-const result = await query('{ ping }')
-for await (const operation of result.listen()) {
-  result.stop()
+const { query, disconnect, ready } = Vue.prototype.$graphql.Auth
+await ready() // make sure the client is connected
+const result = await query('{ ping }') // run some queries
+for await (const operation of result.listen()) { // iterate listen
+  result.stop() // unsubscribe from the operation
 }
 ```
