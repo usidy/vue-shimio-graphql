@@ -19,14 +19,16 @@ export default {
       .forEach(([name, host]) => {
         if (!name || !host) throw new Error(`Invalid host [${ name }, ${ host }]`)
         const log = debug.extend(name)
-        const log_send = log.extend('-[ws]->')
-        const log_receive = log.extend('<-[ws]-')
+        const log_send = log.extend('[send]>>')
+        const log_receive = log.extend('[receive]<<')
         const client = new Client({ host })
         const query = Query(client)
         const disconnect = client.disconnect.bind(client)
         let ready
         Vue.prototype[ key ][ name ] = {
-          query, disconnect, async ready() {
+          query,
+          disconnect,
+          async ready() {
             if (!ready) ready = client.connect()
             return ready
           }
