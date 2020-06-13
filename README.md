@@ -71,3 +71,11 @@ for await (const operation of result.listen()) { // iterate listen
   result.stop() // unsubscribe from the operation
 }
 ```
+
+```js
+const { query, disconnect, ready } = Vue.prototype.$graphql.Auth
+await ready() // make sure the client is connected
+// run and close after the first result
+const result = await query('{ ping }').once()
+}
+```
