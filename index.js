@@ -1,9 +1,11 @@
 import Client from '@hydre/shimio/src/Client.js'
 import Query from '@hydre/shimio-graphql/src/query.js'
+import Debug from 'debug'
 
+const debug = Debug('shimio')
 const default_options = {
   name: 'graphql',
-  hosts: {}
+  hosts: {},
 }
 
 export default {
@@ -15,7 +17,10 @@ export default {
     Object
       .entries(hosts)
       .forEach(([name, host]) => {
-        if(!name || !host) throw new Error(`Invalid host [${name}, ${host}]`)
+        if (!name || !host) throw new Error(`Invalid host [${ name }, ${ host }]`)
+        const log = debug.extend(name)
+        const log_send = log.extend('-[ws]->')
+        const log_receive = log.extend('<-[ws]-')
         const client = new Client({ host })
         const query = Query(client)
         const disconnect = client.disconnect.bind(client)
@@ -51,6 +56,7 @@ export default {
           props: ['query', 'variables'],
           methods: {
             set_operation(operation_name, rest) {
+              log_receive('%O: %O', operation_name, rest)
               this.raw_operations.set(operation_name, rest)
               this.tracker++
               this.$emit(operation_name, rest)
@@ -64,6 +70,7 @@ export default {
                 console.error(`[vue-shimio-graphl] > Invalid or missing query (${this.query})`)
                 return
               }
+              log_send('%O', this.query)
               this.result = await query(this.query, this.variables || {})
               for await (const { operation_name, ...rest } of this.result.listen())
                 this.set_operation(operation_name, rest)
