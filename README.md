@@ -16,10 +16,14 @@ import graphql from '@sidy/vue-shimio-graphql'
 
 Vue.use(graphql, {
   name: 'graphql', // vue prototype namespace
-  hosts: {
-    Api: 'ws://0.0.0.0:3000', // this.$graphql.Api.query('{ ping }')
-    Auth: 'ws://0.0.0.0:3001',
-  }
+  hosts: [{
+      name: 'Api',
+      endpoint: 'ws://0.0.0.0:3000', // this.$graphql.Api.query('{ ping }')
+      retry_strategy: () => 2000
+    }, {
+      name: 'Auth',
+      endpoint: 'ws://0.0.0.0:3001',
+    }]
 })
 ```
 

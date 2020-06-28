@@ -4,35 +4,39 @@ import Debug from 'debug'
 
 const debug = Debug('shimio')
 const default_options = {
-  name: 'graphql',
-  hosts: {},
+  root_name: 'graphql',
+  hosts: [],
 }
 
 export default {
-  install(Vue, { name, hosts } = default_options) {
-    const key = `$${name}`
+  install(Vue, { root_name, hosts } = default_options) {
+    const key = `$${root_name}`
     Vue.prototype[key] = Object.create(null)
-    if (typeof hosts !== 'object' || !hosts)
-      throw new Error(`[vue-shimio-graphl] ${ hosts } must be an object`)
-    Object
-      .entries(hosts)
-      .forEach(([name, host]) => {
-        if (!name || !host) throw new Error(`Invalid host [${ name }, ${ host }]`)
+    if (!hosts || !Array.isArray(hosts))
+      throw new Error(`[vue-shimio-graphl] ${ hosts } must be an array`)
+    hosts
+      .forEach(({ name, endpoint, retry_strategy }) => {
+        if (!name || !endpoint) throw new Error(`Invalid host [${ name }, ${ endpoint }]`)
         const log = debug.extend(name)
         const log_send = log.extend('[send]>>')
         const log_receive = log.extend('[receive]<<')
-        const client = new Client({ host })
+        const client = new Client({ host: endpoint, retry_strategy })
+        const retry = () => {
+          client.disconnect()
+          return client.connect()
+        }
         const query = Query(client)
         const disconnect = client.disconnect.bind(client)
         let ready
-        Vue.prototype[ key ][ name ] = {
+        const shim = {
           query,
           disconnect,
-          async ready() {
+          ready: async () => {
             if (!ready) ready = client.connect()
-            return ready
+            return ready.catch(() => {})
           }
         }
+        Vue.prototype[key][name] = shim
         Vue.component(name, {
           template: `<div>
                         <slot v-if="!operations.length" name="loading"/>
@@ -52,7 +56,8 @@ export default {
             return {
               tracker: 0,
               raw_operations: new Map(),
-              result: undefined
+              result: undefined,
+              state: ''
             }
           },
           props: ['query', 'variables'],
@@ -67,6 +72,7 @@ export default {
               return !operation.data && !operation.errors.length
             },
             async execute_query() {
+              await shim.ready()
               this.stop_query()
               if (typeof this.query !== 'string') {
                 console.error(`[vue-shimio-graphl] > Invalid or missing query (${this.query})`)
@@ -90,10 +96,6 @@ export default {
           },
           async mounted() {
             window.addEventListener('unload', this.stop_query)
-            if (!ready) ready = client.connect()
-            try { await ready } catch (error) {
-              console.error('[vue-shimio-graphl] > The client is unable to connect\n', error)
-            }
             await this.execute_query()
           },
           beforeDestroy() {

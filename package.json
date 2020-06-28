@@ -27,13 +27,13 @@
   },
   "homepage": "https://github.com/usidy/eslint-config-sidy#readme",
   "dependencies": {
-    "@hydre/shimio": "^3.1.1",
-    "@hydre/shimio-graphql": "^3.4.0",
+    "@hydre/shimio": "^3.3.2",
+    "@hydre/shimio-graphql": "^3.4.2",
     "debug": "^4.1.1",
     "vue": "^2.6.11"
   },
   "devDependencies": {
-    "@vue/cli-service": "~4.4.4",
+    "@vue/cli-service": "~4.4.6",
     "pug": "^3.0.0",
     "pug-plain-loader": "^1.0.0",
     "vue-template-compiler": "^2.6.11"
