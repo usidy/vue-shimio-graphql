@@ -19,7 +19,9 @@ Vue.use(graphql, {
   hosts: [{
       name: 'Api',
       endpoint: 'ws://0.0.0.0:3000', // this.$graphql.Api.query('{ ping }')
-      retry_strategy: () => 2000
+      retry_strategy: () => 2000,
+      on_connect: () => {},
+      on_disconnect: () => {}
     }, {
       name: 'Auth',
       endpoint: 'ws://0.0.0.0:3001',

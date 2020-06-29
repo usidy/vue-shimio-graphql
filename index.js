@@ -15,27 +15,38 @@ export default {
     if (!hosts || !Array.isArray(hosts))
       throw new Error(`[vue-shimio-graphl] ${ hosts } must be an array`)
     hosts
-      .forEach(({ name, endpoint, retry_strategy }) => {
+      .forEach(({
+        name,
+        endpoint,
+        retry_strategy,
+        on_connect = () => {},
+        on_disconnect = () => {}
+      }) => {
         if (!name || !endpoint) throw new Error(`Invalid host [${ name }, ${ endpoint }]`)
         const log = debug.extend(name)
-        const log_send = log.extend('[send]>>')
-        const log_receive = log.extend('[receive]<<')
-        const client = new Client({ host: endpoint, retry_strategy })
-        const retry = () => {
-          client.disconnect()
-          return client.connect()
-        }
+        const log_send = log.extend('->')
+        const log_receive = log.extend('<-')
+        const client = Client({ host: endpoint, retry_strategy })
         const query = Query(client)
-        const disconnect = client.disconnect.bind(client)
         let ready
         const shim = {
           query,
-          disconnect,
+          disconnect: () => {
+            ready = undefined
+            client.disconnect()
+          },
           ready: async () => {
             if (!ready) ready = client.connect()
-            return ready.catch(() => {})
+            return ready
           }
         }
+        client.on('connected', () => {
+          on_connect()
+          client.once('disconnected', () => {
+            ready = undefined
+            on_disconnect()
+          })
+        })
         Vue.prototype[key][name] = shim
         Vue.component(name, {
           template: `<div>
@@ -72,22 +83,30 @@ export default {
               return !operation.data && !operation.errors.length
             },
             async execute_query() {
-              await shim.ready()
               this.stop_query()
               if (typeof this.query !== 'string') {
                 console.error(`[vue-shimio-graphl] > Invalid or missing query (${this.query})`)
                 return
               }
               log_send('%O', this.query)
-              this.result = query(this.query, this.variables || {})
+              this.result = await query(this.query, this.variables || {})
               for await (const { operation_name, ...rest } of this.result.listen())
                 this.set_operation(operation_name, rest)
             },
             stop_query() {
-              if (this.result) this.result.stop()
+              if (this.result) this.result?.stop?.()
               this.raw_operations.clear()
               this.tracker++
-            }
+            },
+            on_leave() {
+              this.stop_query()
+              client.off('connected', ::this.execute_query)
+              client.off('disconnected', ::this.on_connection_failure)
+            },
+            on_connection_failure() {
+              this.stop_query()
+              client.on('connected', ::this.execute_query)
+            },
           },
           watch: {
             async query() {
@@ -95,12 +114,14 @@ export default {
             }
           },
           async mounted() {
-            window.addEventListener('unload', this.stop_query)
+            window.addEventListener('beforeunload', ::this.on_leave)
+            client.once('disconnected', ::this.on_connection_failure)
+            await shim.ready()
             await this.execute_query()
           },
           beforeDestroy() {
-            window.removeEventListener('unload', this.stop_query)
-            this.stop_query()
+            window.removeEventListener('beforeunload', ::this.on_leave)
+            this.on_leave()
           }
         })
       })
