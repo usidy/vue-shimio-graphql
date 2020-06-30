@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/usidy/eslint-config-sidy#readme",
   "dependencies": {
-    "@hydre/shimio": "^4.0.2",
+    "@hydre/shimio": "^4.1.2",
     "@hydre/shimio-graphql": "^4.0.0",
     "debug": "^4.1.1",
     "vue": "^2.6.11"

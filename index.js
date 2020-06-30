@@ -28,24 +28,17 @@ export default {
         const log_receive = log.extend('<-')
         const client = Client({ host: endpoint, retry_strategy })
         const query = Query(client)
-        let ready
+        const disconnect = client.disconnect.bind(client)
         const shim = {
-          query,
-          disconnect: () => {
-            ready = undefined
-            client.disconnect()
+          query: async (...parameters) => {
+            await client.connect()
+            return query(...parameters)
           },
-          ready: async () => {
-            if (!ready) ready = client.connect()
-            return ready
-          }
+          disconnect,
         }
         client.on('connected', () => {
           on_connect()
-          client.once('disconnected', () => {
-            ready = undefined
-            on_disconnect()
-          })
+          client.once('disconnected', on_disconnect)
         })
         Vue.prototype[key][name] = shim
         Vue.component(name, {
@@ -65,7 +58,7 @@ export default {
           },
           data() {
             return {
-              tracker: 0,
+              tracker: 1,
               raw_operations: new Map(),
               result: undefined,
               state: ''
@@ -89,7 +82,7 @@ export default {
                 return
               }
               log_send('%O', this.query)
-              this.result = await query(this.query, this.variables || {})
+              this.result = await shim.query(this.query, this.variables || {})
               for await (const { operation_name, ...rest } of this.result.listen())
                 this.set_operation(operation_name, rest)
             },
@@ -116,7 +109,7 @@ export default {
           async mounted() {
             window.addEventListener('beforeunload', ::this.on_leave)
             client.once('disconnected', ::this.on_connection_failure)
-            await shim.ready()
+            // connecting twice is a noop on @hydre/shimio/client
             await this.execute_query()
           },
           beforeDestroy() {
