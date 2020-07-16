@@ -3,6 +3,19 @@ import Query from '@hydre/shimio-graphql/src/query.js'
 import Debug from 'debug'
 
 const debug = Debug('shimio')
+const replace_nulls = value => {
+  if(value === null) return undefined
+  switch (typeof value) {
+    case 'object':
+      if (Array.isArray(value)) return value.map(replace_nulls)
+      const entries = Object
+        .entries(value)
+        .map(([ key, value ]) => [ key, replace_nulls(value) ])
+      return Object.fromEntries(entries)
+    default:
+      return value
+  }
+}
 const default_options = {
   root_name: 'graphql',
   hosts: [],
@@ -67,10 +80,11 @@ export default {
           props: ['query', 'variables'],
           methods: {
             set_operation(operation_name, rest) {
-              log_receive('%O: %O', operation_name, rest)
-              this.raw_operations.set(operation_name, rest)
+              const normalized = replace_nulls(rest)
+              log_receive('%O: %O', operation_name, normalized)
+              this.raw_operations.set(operation_name, normalized)
               this.tracker++
-              this.$emit(operation_name, rest)
+              this.$emit(operation_name, normalized)
             },
             is_loading(operation) {
               return !operation.data && !operation.errors.length
