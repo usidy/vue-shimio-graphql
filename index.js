@@ -104,6 +104,9 @@ export default {
           watch: {
             async query() {
               await this.execute_query()
+            },
+            async variables() {
+              await this.execute_query()
             }
           },
           async mounted() {
