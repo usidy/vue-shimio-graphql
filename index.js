@@ -47,6 +47,10 @@ export default {
             await client.connect()
             return query(...parameters)
           },
+          query_once: async (...parameters) => {
+            const result = await shim.query(...parameters)
+            return result.once()
+          },
           disconnect,
         }
         client.on('connected', () => {
