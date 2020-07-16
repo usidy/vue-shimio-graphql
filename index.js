@@ -50,7 +50,7 @@ export default {
           query_once: async (...parameters) => {
             const response = await shim.query(...parameters)
             const { data, errors } = await response.once()
-            if (errors?.length) throw errors
+            if (errors?.length) throw new Error(errors.map(e => e.message).join('\n'))
             return data
           },
           disconnect,
