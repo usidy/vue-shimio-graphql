@@ -107,7 +107,10 @@ export default {
                 this.set_operation(operation_name, rest)
             },
             stop_query() {
-              if (this.result) this.result?.stop?.()
+              if (this.result) {
+                this.result.stop()
+                this.result = undefined
+              }
               this.raw_operations.clear()
               this.tracker++
             },
