@@ -7,7 +7,8 @@
   <img src="https://img.shields.io/npm/dw/@sidy/vue-shimio-graphql?logo=npm&style=for-the-badge" />
 </p>
 
-<h3 align=center>A VueJS plugin to make graphql [shimio](https://github.com/HydreIO/shimio-graphql) queries</h3>
+<h3 align=center>A VueJS plugin to make graphql 
+  <a href="https://github.com/HydreIO/shimio-graphql">shimio</a> queries</h3>
 
 ## Install
 
