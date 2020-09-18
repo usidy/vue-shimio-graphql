@@ -116,12 +116,12 @@ export default {
             },
             on_leave() {
               this.stop_query()
-              client.off('connected', ::this.execute_query)
-              client.off('disconnected', ::this.on_connection_failure)
+              client.off('connected', this.execute_query)
+              client.off('disconnected', this.on_connection_failure)
             },
             on_connection_failure() {
               this.stop_query()
-              client.on('connected', ::this.execute_query)
+              client.on('connected', this.execute_query)
             },
           },
           watch: {
@@ -133,13 +133,13 @@ export default {
             }
           },
           async mounted() {
-            window.addEventListener('beforeunload', ::this.on_leave)
-            client.once('disconnected', ::this.on_connection_failure)
+            window.addEventListener('beforeunload', this.on_leave)
+            client.once('disconnected', this.on_connection_failure)
             // connecting twice is a noop on @hydre/shimio/client
             await this.execute_query()
           },
           beforeDestroy() {
-            window.removeEventListener('beforeunload', ::this.on_leave)
+            window.removeEventListener('beforeunload', this.on_leave)
             this.on_leave()
           }
         })
