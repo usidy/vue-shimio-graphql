@@ -1,6 +1,6 @@
 {
   "name": "@sidy/vue-shimio-graphql",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "A VueJS plugin to make graphql websocket queries",
   "main": "index.js",
   "scripts": {
