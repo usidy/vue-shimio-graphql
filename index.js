@@ -101,7 +101,7 @@ export default {
                 console.error(`[vue-shimio-graphl] > Invalid or missing query (${this.query})`)
                 return
               }
-              log_send('%O', this.query)
+              log_send('operation: %O\n variables: %O', this.query, this.variables)
               this.result = await shim.query(this.query, this.variables || {})
               for await (const { operation_name, ...rest } of this.result.listen())
                 this.set_operation(operation_name, rest)
