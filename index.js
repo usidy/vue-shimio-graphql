@@ -88,8 +88,11 @@ export default {
             set_operation(operation_name, rest) {
               const normalized = replace_nulls(rest)
               const error_count = normalized.errors?.length ?? 0
-              const bg_color = error_count ? '\\033[42m' : '\\033[41m'
-              log_receive(`${bg_color}%O: %O`, operation_name, normalized)
+              const color = error_count ? '#ef5350' : '#66BB6A'
+              const css_color = `color: ${color};`
+              const prefix = error_count ? '⛔️' : '✅'
+              const formatted_operation = `${prefix} %c${operation_name} %O`
+              log_receive(formatted_operation, css_color, normalized)
               this.raw_operations.set(operation_name, normalized)
               this.tracker++
               this.$emit(operation_name, normalized)
@@ -104,11 +107,17 @@ export default {
                 return
               }
               const variables_count = Object.keys(this.variables ?? {}).length
+              const formatted_query = `${ this.query?.slice(0, 300) } [...]\n\n`
+              const key_css = 'text-shadow: 1px 2px 3px black;'
+              const value_css = 'background-color: #FFCA28; color: black;'
+              const formatted_variables = Object
+                .entries(this.variables ?? {})
+                .flatMap(([ key, value ]) => [
+                  `%c${ key } %c${ value }\n`,
+                ])
               log_send(
-                `operation sent with %d variables %O`, variables_count, {
-                query: this.query,
-                ...this.variables
-              })
+                [formatted_query, ...formatted_variables].join(''),
+                ...(variables_count ? [key_css, value_css] : []))
               this.result = await shim.query(this.query, this.variables || {})
               for await (const { operation_name, ...rest } of this.result.listen())
                 this.set_operation(operation_name, rest)
