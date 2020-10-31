@@ -4,13 +4,14 @@ import Debug from 'debug'
 
 const debug = Debug('shimio')
 const replace_nulls = value => {
-  if(value === null) return undefined
+  if (value === null) return undefined
   switch (typeof value) {
     case 'object':
       if (Array.isArray(value)) return value.map(replace_nulls)
-      const entries = Object
-        .entries(value)
-        .map(([ key, value ]) => [ key, replace_nulls(value) ])
+      const entries = Object.entries(value).map(([key, value]) => [
+        key,
+        replace_nulls(value),
+      ])
       return Object.fromEntries(entries)
     default:
       return value
@@ -26,16 +27,17 @@ export default {
     const key = `$${root_name}`
     Vue.prototype[key] = Object.create(null)
     if (!hosts || !Array.isArray(hosts))
-      throw new Error(`[vue-shimio-graphl] ${ hosts } must be an array`)
-    hosts
-      .forEach(({
+      throw new Error(`[vue-shimio-graphl] ${hosts} must be an array`)
+    hosts.forEach(
+      ({
         name,
         endpoint,
         retry_strategy,
         on_connect = () => {},
-        on_disconnect = () => {}
+        on_disconnect = () => {},
       }) => {
-        if (!name || !endpoint) throw new Error(`Invalid host [${ name }, ${ endpoint }]`)
+        if (!name || !endpoint)
+          throw new Error(`Invalid host [${name}, ${endpoint}]`)
         const log = debug.extend(name)
         const log_send = log.extend('->')
         const log_receive = log.extend('<-')
@@ -50,7 +52,8 @@ export default {
           query_once: async (...parameters) => {
             const response = await shim.query(...parameters)
             const { data, errors } = await response.once()
-            if (errors?.length) throw new Error(errors.map(e => e.message).join('\n'))
+            if (errors?.length)
+              throw new Error(errors.map(e => e.message).join('\n'))
             return data
           },
           disconnect,
@@ -72,18 +75,18 @@ export default {
                      </div>`,
           computed: {
             operations() {
-              return this.tracker && [ ...this.raw_operations.entries() ]
-            }
+              return this.tracker && [...this.raw_operations.entries()]
+            },
           },
           data() {
             return {
               tracker: 1,
               raw_operations: new Map(),
               result: undefined,
-              state: ''
+              state: '',
             }
           },
-          props: [ 'query', 'variables' ],
+          props: ['query', 'variables'],
           methods: {
             set_operation(operation_name, rest) {
               const normalized = replace_nulls(rest)
@@ -103,23 +106,32 @@ export default {
             async execute_query() {
               this.stop_query()
               if (typeof this.query !== 'string') {
-                console.error(`[vue-shimio-graphl] > Invalid or missing query (${ this.query })`)
+                console.error(
+                  `[vue-shimio-graphl] > Invalid or missing query (${this.query})`,
+                )
                 return
               }
               const variables_count = Object.keys(this.variables ?? {}).length
-              const formatted_query = `${ this.query?.slice(0, 300) } [...]\n\n`
+              const formatted_query = `${this.query?.slice(0, 300)} [...]\n\n`
               const key_css = 'text-shadow: 1px 2px 3px black;'
               const value_css = 'background-color: #FFCA28; color: black;'
-              const formatted_variables = Object
-                .entries(this.variables ?? {})
-                .flatMap(([ key, value ]) => [
-                  `%c${ key } %c${ value }\n`,
-                ])
+              const variables_entries = Object.entries(this.variables ?? {})
+              const formatted_variables = variables_entries.flatMap(
+                ([key, value]) => [`%c${key} %c${value}\n`],
+              )
+              const formatted_css = variables_entries.flatMap(() => [
+                key_css,
+                value_css,
+              ])
               log_send(
                 [formatted_query, ...formatted_variables].join(''),
-                ...(variables_count ? [key_css, value_css] : []))
+                ...formatted_css,
+              )
               this.result = await shim.query(this.query, this.variables || {})
-              for await (const { operation_name, ...rest } of this.result.listen())
+              for await (const {
+                operation_name,
+                ...rest
+              } of this.result.listen())
                 this.set_operation(operation_name, rest)
             },
             stop_query() {
@@ -146,7 +158,7 @@ export default {
             },
             async variables() {
               await this.execute_query()
-            }
+            },
           },
           async mounted() {
             window.addEventListener('beforeunload', this.on_leave)
@@ -157,8 +169,9 @@ export default {
           beforeDestroy() {
             window.removeEventListener('beforeunload', this.on_leave)
             this.on_leave()
-          }
+          },
         })
-      })
+      },
+    )
   },
 }
