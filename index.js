@@ -88,7 +88,7 @@ export default {
             set_operation(operation_name, rest) {
               const normalized = replace_nulls(rest)
               const error_count = normalized.errors?.length ?? 0
-              const bg_color = error_count ? '\033[42m' : '\033[41m'
+              const bg_color = error_count ? '\\033[42m' : '\\033[41m'
               log_receive(`${bg_color}%O: %O`, operation_name, normalized)
               this.raw_operations.set(operation_name, normalized)
               this.tracker++
