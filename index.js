@@ -72,7 +72,7 @@ export default {
                      </div>`,
           computed: {
             operations() {
-              return this.tracker && [...this.raw_operations.entries()]
+              return this.tracker && [ ...this.raw_operations.entries() ]
             }
           },
           data() {
@@ -83,11 +83,13 @@ export default {
               state: ''
             }
           },
-          props: ['query', 'variables'],
+          props: [ 'query', 'variables' ],
           methods: {
             set_operation(operation_name, rest) {
               const normalized = replace_nulls(rest)
-              log_receive('%O: %O', operation_name, normalized)
+              const error_count = normalized.errors?.length ?? 0
+              const bg_color = error_count ? '\033[42m' : '\033[41m'
+              log_receive(`${bg_color}%O: %O`, operation_name, normalized)
               this.raw_operations.set(operation_name, normalized)
               this.tracker++
               this.$emit(operation_name, normalized)
@@ -98,10 +100,15 @@ export default {
             async execute_query() {
               this.stop_query()
               if (typeof this.query !== 'string') {
-                console.error(`[vue-shimio-graphl] > Invalid or missing query (${this.query})`)
+                console.error(`[vue-shimio-graphl] > Invalid or missing query (${ this.query })`)
                 return
               }
-              log_send('operation: %O\n variables: %O', this.query, this.variables)
+              const variables_count = Object.keys(this.variables ?? {}).length
+              log_send(
+                `operation sent with %d variables %O`, variables_count, {
+                query: this.query,
+                ...this.variables
+              })
               this.result = await shim.query(this.query, this.variables || {})
               for await (const { operation_name, ...rest } of this.result.listen())
                 this.set_operation(operation_name, rest)
